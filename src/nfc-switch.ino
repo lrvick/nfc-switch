@@ -3,14 +3,18 @@
 #include <Adafruit_PN532.h>
 #include <authorized_ids.h>
 
-#define IRQ   (2)
-#define RESET (3)  // Not connected by default on the NFC Shield
+#define RELAY (9)
 
-Adafruit_PN532 nfc(IRQ, RESET);
+#define PN532_SS   (10)
+#define PN532_MOSI (11)
+#define PN532_MISO (12)
+#define PN532_SCK  (13)
+
+Adafruit_PN532 nfc(PN532_SCK, PN532_MISO, PN532_MOSI, PN532_SS);
 
 void setup(void) {
   Serial.begin(9600);
-  pinMode(13, OUTPUT);
+  pinMode(RELAY, OUTPUT);
   nfc.begin();
   nfc.SAMConfig();
 }
@@ -29,16 +33,16 @@ void loop(void) {
         for (b=0; b < 7; b++){
             if (uid[b] == auth_uids[i][b]){
                 if (b == 6){
-                    if (digitalRead(13) == HIGH) {
-                        digitalWrite(13, LOW);
+                    if (digitalRead(RELAY) == HIGH) {
+                        digitalWrite(RELAY, LOW);
                         Serial.println("Power Off");
                     } else {
-                        digitalWrite(13, HIGH);
+                        digitalWrite(RELAY, HIGH);
                         Serial.println("Power On");
                     }
-                    delay(1000);
                     i=num_uids;
                     success=1;
+                    delay(1000);
                     break;
                 }
             } else {
